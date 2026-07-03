@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -31,23 +31,38 @@
 
     <p class="subtitle">AI Face Detection Demo</p>
 
-    <div class="status">
+    <div id="modeSelection">
+
+       <h2>Select Authentication Mode</h2>
+
+     <button id="faceModeBtn">
+        Face Recognition
+     </button>
+
+     <button id="rfidModeBtn">
+        RFID Card
+     </button>
+
+    </div>
+
+    <div id="faceMode"> 
+      <div class="status">
 
         <img id="lockIcon" src="">
 
         <h2 id="doorStatus">LOCKED</h2>
 
-    </div>
+      </div>
 
-    <div class="camera">
+      <div class="camera">
 
         <video id="video" autoplay playsinline muted></video>
 
         <div class="scanLine"></div>
 
-    </div>
+      </div>
 
-    <div class="buttons">
+      <div class="buttons">
 
         <button id="registerBtn">REGISTER FACE</button>
 
@@ -55,30 +70,92 @@
 
         <button id="lockBtn">LOCK DOOR</button>
 
-    </div>
+      </div>
 
-    <div class="info">
+      <div class="info">
 
         <h2 id="message">SYSTEM READY</h2>
 
         <p id="subMessage">Door Locked</p>
 
-    </div>
+      </div>
 
-    <div class="timer">
+      <div class="timer">
 
         <h3>AUTO LOCK</h3>
 
         <span id="countdown">--</span>
 
-    </div>
+      </div>
 
-    <div class="progress">
+      <div class="progress">
 
         <div id="progressBar"></div>
 
+      </div>
     </div>
 
+    <div id="rfidMode" style="display:none;">
+
+      <div class="status">
+
+        <img id="rfidIcon" src="icons/rfid.jpg" alt="RFID">
+
+        <h2 id="rfidDoorStatus">LOCKED</h2>
+
+      </div>
+
+      <div class="rfidCard">
+
+        <img src="icons/rfid-card.jpg" alt="RFID Card" class="cardImage">
+
+        <div class="pulseCircle"></div>
+
+      </div>
+
+      <div class="buttons">
+
+        <button id="registerCardBtn">
+            REGISTER CARD
+        </button>
+
+        <button id="scanCardBtn">
+            SCAN CARD
+        </button>
+
+        <button id="lockDoorBtn">
+            LOCK DOOR
+        </button>
+
+      </div>
+
+      <div class="info">
+
+        <h2 id="rfidMessage">
+            SYSTEM READY
+        </h2>
+
+        <p id="rfidSubMessage">
+            Tap your RFID Card
+        </p>
+
+      </div>
+
+      <div class="timer">
+
+        <h3>AUTO LOCK</h3>
+
+        <span id="rfidCountdown">--</span>
+
+      </div>
+
+      <div class="progress">
+
+        <div id="rfidProgressBar"></div>
+
+      </div>
+
+    </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script src="script.js"></script>
