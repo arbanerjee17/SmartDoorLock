@@ -257,8 +257,8 @@ The project aims to evolve into a complete Smart Access Management Platform feat
 
 # 👨‍💻 Author
 
-**Abhay Bakshi**
+APARUP BANERJEE 
 
-Electronics & Communication Engineering
+ASSOCIATE ENGINEER , IIMCIP-TIC
 
 AI • IoT • Embedded Systems • Web Development
