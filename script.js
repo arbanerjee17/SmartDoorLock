@@ -5,10 +5,9 @@
 // <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 // <script defer src="script.js"></script>
 //
-// Required model files folder:
-// ./models/tiny_face_detector_model-*
-// ./models/face_landmark_68_model-*
-// ./models/face_recognition_model-*
+//============================
+// Face Mode
+//============================
 
 const video = document.getElementById("video");
 
@@ -23,6 +22,35 @@ const doorStatus = document.getElementById("doorStatus");
 const countdown = document.getElementById("countdown");
 const progressBar = document.getElementById("progressBar");
 const lockIcon = document.getElementById("lockIcon");
+
+
+//============================
+// Mode Selection
+//============================
+
+const faceModeBtn = document.getElementById("faceModeBtn");
+const rfidModeBtn = document.getElementById("rfidModeBtn");
+
+const faceMode = document.getElementById("faceMode");
+const rfidMode = document.getElementById("rfidMode");
+
+
+//============================
+// RFID Mode
+//============================
+
+const registerCardBtn = document.getElementById("registerCardBtn");
+const scanCardBtn = document.getElementById("scanCardBtn");
+const lockDoorBtn = document.getElementById("lockDoorBtn");
+
+const rfidMessage = document.getElementById("rfidMessage");
+const rfidSubMessage = document.getElementById("rfidSubMessage");
+
+const rfidDoorStatus = document.getElementById("rfidDoorStatus");
+const rfidCountdown = document.getElementById("rfidCountdown");
+const rfidProgressBar = document.getElementById("rfidProgressBar");
+
+const rfidIcon = document.getElementById("rfidIcon");
 
 // CHANGE THIS TO YOUR ESP32 IP
 const ESP32_IP = "192.168.31.77";
@@ -419,6 +447,82 @@ lockBtn.addEventListener("click", async () => {
     await lockDoor();
 });
 
+registerCardBtn.onclick = async () => {
+
+    rfidMessage.textContent = "REGISTERING...";
+    rfidSubMessage.textContent = "Tap RFID Card";
+
+    try{
+
+        const res = await fetch(`http://${ESP32_IP}/registerCard`);
+        const txt = await res.text();
+
+        console.log(txt);
+
+        if(txt.trim()=="CARD_REGISTERED"){
+
+            rfidMessage.textContent="CARD REGISTERED";
+            rfidSubMessage.textContent="Ready to Scan";
+
+        }else{
+
+            rfidMessage.textContent="REGISTER FAILED";
+            rfidSubMessage.textContent=txt;
+
+        }
+
+    }catch(err){
+
+        console.log(err);
+
+        rfidMessage.textContent="ESP32 OFFLINE";
+
+    }
+
+}
+scanCardBtn.onclick = async () => {
+
+    rfidMessage.textContent="WAITING...";
+    rfidSubMessage.textContent="Tap RFID Card";
+
+    try{
+
+        const res = await fetch(`http://${ESP32_IP}/scanCard`);
+        const txt = await res.text();
+
+        console.log(txt);
+
+        if(txt.trim()=="ACCESS_GRANTED"){
+
+            await unlockDoor();
+
+        }else{
+
+            rfidMessage.textContent="ACCESS DENIED";
+            rfidSubMessage.textContent="Unknown Card";
+
+        }
+
+    }catch(err){
+
+        console.log(err);
+
+        rfidMessage.textContent="ESP32 OFFLINE";
+
+    }
+
+}
+lockDoorBtn.onclick=()=>{
+
+    lockDoor();
+
+}
+
+faceModeBtn.addEventListener("click",showFaceMode);
+
+rfidModeBtn.addEventListener("click",showRFIDMode);
+
+
 // ================================
 // ESP32
 // ================================
@@ -475,10 +579,15 @@ async function denyAccess() {
 
 function startCountdown() {
     let secondsLeft = AUTO_LOCK_SECONDS;
-
+   
     clearInterval(timer);
+    const progress = (secondsLeft / AUTO_LOCK_SECONDS) * 100;
+
     countdown.textContent = secondsLeft;
-    progressBar.style.width = "100%";
+    rfidCountdown.textContent = secondsLeft;
+
+    progressBar.style.width = progress + "%";
+    rfidProgressBar.style.width = progress + "%";
 
     timer = setInterval(async () => {
         secondsLeft -= 1;
@@ -498,6 +607,36 @@ function startCountdown() {
 // START
 // ================================
 
+function showFaceMode(){
+
+    faceMode.style.display="block";
+
+    rfidMode.style.display="none";
+
+    startCamera();
+
+}
+
+function showRFIDMode(){
+
+    faceMode.style.display="none";
+
+    rfidMode.style.display="block";
+
+    stopCamera();
+
+}
+function stopCamera(){
+
+    if(video.srcObject){
+
+        video.srcObject.getTracks().forEach(track=>track.stop());
+
+        video.srcObject=null;
+
+    }
+
+}
 async function init() {
     setButtonsDisabled(true);
     setDoorLockedUi();
