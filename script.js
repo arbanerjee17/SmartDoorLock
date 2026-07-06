@@ -206,30 +206,32 @@ async function getFaceDescriptorFromFrame() {
         return null;
     }
 
-    const frame = video;
+    const frame = captureFrameCanvas();
 
     for (const detectorSetting of DETECTOR_SETTINGS) {
 
         const options = new faceapi.TinyFaceDetectorOptions(detectorSetting);
 
-        const result = await faceapi
-        .detectSingleFace(frame, options)
-        .withFaceLandmarks()
-        .withFaceDescriptor();
+        const results = await faceapi
+            .detectAllFaces(frame, options)
+            .withFaceLandmarks()
+            .withFaceDescriptors();
 
-        console.log(result);
-        if (!result) {
-         return null;
+        const bestFace = getLargestFace(results);
+
+        if (bestFace) {
+
+            console.log("Face found:", {
+                score: bestFace.detection.score,
+                box: bestFace.detection.box,
+                detectorSetting
+            });
+
+            return bestFace.descriptor;
         }
-
-     console.log("Face Width:", result.detection.box.width);
-
-     return result.descriptor;
-
     }
 
     return null;
-
 }
 function sleep(ms) {
     return new Promise((resolve) => {
@@ -373,61 +375,57 @@ function loadStoredFace() {
     }
 }
 
-function isRegisteredFace(scanDescriptor){
+function isRegisteredFace(scanDescriptor) {
 
-    if(!registeredDescriptor){
-
+    if (!registeredDescriptor) {
         return false;
-
     }
 
-    const distance=faceapi.euclideanDistance(
+    const distance = faceapi.euclideanDistance(
         registeredDescriptor,
         scanDescriptor
     );
 
-    console.log("======================");
-    console.log("Distance =",distance);
-    console.log("======================");
+    console.log("Face distance:", distance);
 
-    return distance < MATCH_THRESHOLD;
-
+    return distance <= MATCH_THRESHOLD;
 }
 // ================================
 // REGISTER FACE
 // ================================
 
 registerBtn.addEventListener("click", async () => {
+
     setButtonsDisabled(true);
     setMessage("CAPTURING PHOTO...", "Look at camera");
 
     try {
 
-     const descriptor = await waitForFaceDescriptor();
+        const descriptor = await waitForFaceDescriptor();
 
-     if (!descriptor) {
+        saveRegisteredFace(descriptor);
 
-        setMessage("NO FACE DETECTED", "Try Again");
-        return;
+        if (descriptor) {
 
-     }
+            setMessage("FACE REGISTERED", "Recognition mode ready");
 
-     saveRegisteredFace(descriptor);
+        } else {
 
-     setMessage("FACE REGISTERED", "Recognition mode ready");
+            setMessage("PHOTO REGISTERED", "Photo match mode ready");
 
-     }
-     catch (error) {
+        }
 
-     console.error(error);
-     setMessage("REGISTER FAILED", "Try again");
+    } catch (error) {
 
-     }
-     finally {
+        console.error(error);
+        setMessage("REGISTER FAILED", "Try again");
 
-     setButtonsDisabled(false);
+    } finally {
+
+        setButtonsDisabled(false);
 
     }
+
 });
 
 
@@ -477,34 +475,25 @@ registerCardBtn.onclick = async () => {
 }
 scanBtn.addEventListener("click", async () => {
 
-    if (!hasRegisteredIdentity()) {
-    setMessage("REGISTER FACE FIRST", "No face enrolled");
-    return;
+    if (!registeredDescriptor) {
+
+        setMessage("REGISTER FACE FIRST", "No face enrolled");
+        return;
+
     }
 
     setButtonsDisabled(true);
-    setMessage("VERIFYING...", "Hold still");
+    setMessage("SCANNING...", "Look at camera");
 
     try {
 
-        let success = 0;
+        const descriptor = await waitForFaceDescriptor();
 
-        for (let i = 0; i < 5; i++) {
+        if (!descriptor) {
 
-            const descriptor = await waitForFaceDescriptor(2000);
+            await denyAccess();
 
-            if (!descriptor)
-                continue;
-
-            if (isRegisteredFace(descriptor))
-                success++;
-
-            await new Promise(r => setTimeout(r, 200));
-        }
-
-        console.log("Successful matches:", success);
-
-        if (success >= 4) {
+        } else if (isRegisteredFace(descriptor)) {
 
             await unlockDoor();
 
