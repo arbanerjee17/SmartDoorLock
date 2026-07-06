@@ -103,13 +103,14 @@ function setDoorLockedUi() {
     }
 }
 
-function setDoorUnlockedUi() {
-    doorStatus.textContent = "UNLOCKED";
-    doorStatus.style.color = "#00ff88";
+function setDoorUnlockedUi(){
 
-    if (lockIcon) {
-        lockIcon.textContent = "UNLOCKED";
-    }
+    doorStatus.textContent="UNLOCKED";
+    doorStatus.style.color="#00ff88";
+
+    rfidDoorStatus.textContent="UNLOCKED";
+    rfidDoorStatus.style.color="#00ff88";
+
 }
 
 function setButtonsDisabled(disabled) {
@@ -578,29 +579,50 @@ async function denyAccess() {
 // ================================
 
 function startCountdown() {
+
     let secondsLeft = AUTO_LOCK_SECONDS;
-   
+
     clearInterval(timer);
-    const progress = (secondsLeft / AUTO_LOCK_SECONDS) * 100;
 
     countdown.textContent = secondsLeft;
     rfidCountdown.textContent = secondsLeft;
 
-    progressBar.style.width = progress + "%";
-    rfidProgressBar.style.width = progress + "%";
+    progressBar.style.width = "100%";
+    rfidProgressBar.style.width = "100%";
 
     timer = setInterval(async () => {
-        secondsLeft -= 1;
+
+        secondsLeft--;
 
         countdown.textContent = secondsLeft;
-        progressBar.style.width = `${(secondsLeft / AUTO_LOCK_SECONDS) * 100}%`;
+        rfidCountdown.textContent = secondsLeft;
+
+        const progress = (secondsLeft / AUTO_LOCK_SECONDS) * 100;
+
+        if (faceMode.style.display !== "none") {
+
+            progressBar.style.width = progress + "%";
+
+        } else {
+
+            rfidProgressBar.style.width = progress + "%";
+
+        }
 
         if (secondsLeft <= 0) {
+
             clearInterval(timer);
             timer = null;
+
+            progressBar.style.width = "0%";
+            rfidProgressBar.style.width = "0%";
+
             await lockDoor();
+
         }
+
     }, 1000);
+
 }
 
 // ================================
@@ -610,8 +632,10 @@ function startCountdown() {
 function showFaceMode(){
 
     faceMode.style.display="block";
-
     rfidMode.style.display="none";
+
+    faceModeBtn.classList.add("active");
+    rfidModeBtn.classList.remove("active");
 
     startCamera();
 
@@ -620,8 +644,10 @@ function showFaceMode(){
 function showRFIDMode(){
 
     faceMode.style.display="none";
-
     rfidMode.style.display="block";
+
+    rfidModeBtn.classList.add("active");
+    faceModeBtn.classList.remove("active");
 
     stopCamera();
 
@@ -640,6 +666,7 @@ function stopCamera(){
 async function init() {
     setButtonsDisabled(true);
     setDoorLockedUi();
+    showFaceMode();
 
     try {
         await startCamera();
@@ -651,5 +678,7 @@ async function init() {
         setButtonsDisabled(false);
     }
 }
-
-init(); 
+// HTML IS A STUPID LANGUAGE SO I HAVE TO CALL INIT() TWICE TO MAKE IT WORK 
+init();
+//CHATGPT IS A STUPID AI SO I DUMPED ALL THE CODE IN ONE FILE AND MADE IT WORK
+//CSS IS A STUPID LANGUAGE SO I DUMPED ALL THE CODE IN ONE FILE AND MADE IT WORK
