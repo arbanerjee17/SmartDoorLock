@@ -63,7 +63,9 @@ const pinCountdown=document.getElementById("pinCountdown");
 
 const pinProgressBar=document.getElementById("pinProgressBar");
 const MASTER_PIN="123456";
-const keySound = new Audio("sounds/key.mp3");
+const keySound = new Audio("icons/key.mp3");
+keySound.volume = 0.5;
+
 // CHANGE THIS TO YOUR ESP32 IP
 const ESP32_IP = "192.168.31.77";
 
@@ -464,10 +466,11 @@ pinModeBtn.classList.add("activeMode");
 
 document.querySelectorAll(".pinKey").forEach(button=>{
 
-    button.onclick=()=>{
+    button.addEventListener("click",()=>{
 
+        keySound.pause();
         keySound.currentTime=0;
-        keySound.play();
+        keySound.play().catch(()=>{});
 
         if(pinInput.value.length<6){
 
@@ -475,19 +478,27 @@ document.querySelectorAll(".pinKey").forEach(button=>{
 
         }
 
-    };
+    });
 
 });
 
 pinClear.onclick=()=>{
 
-pinInput.value="";
+    keySound.pause();
+    keySound.currentTime=0;
+    keySound.play().catch(()=>{});
+
+    pinInput.value="";
 
 };
 
 pinBack.onclick=()=>{
 
-pinInput.value=pinInput.value.slice(0,-1);
+    keySound.pause();
+    keySound.currentTime=0;
+    keySound.play().catch(()=>{});
+
+    pinInput.value=pinInput.value.slice(0,-1);
 
 };
 
