@@ -40,9 +40,13 @@
         RFID Card
      </button>
 
+     <button id="pinModeBtn">
+       PIN Unlock
+     </button>
+
     </div>
 
-    <div id="faceMode">
+<div id="faceMode">
 
     <div class="desktopLayout">
 
@@ -108,7 +112,7 @@
 
 </div>
 
-    <div id="rfidMode" style="display:none;">
+<div id="rfidMode" style="display:none;">
 
     <div class="desktopLayout">
 
@@ -184,6 +188,83 @@
     </div>
 </div>
 
+<div id="pinMode" style="display:none;">
+
+    <div class="pinPanel">
+
+        <h2>🔐 PIN UNLOCK</h2>
+
+        <p>Enter 6 Digit PIN</p>
+
+        <input
+            id="pinInput"
+            type="password"
+            maxlength="6"
+            inputmode="numeric"
+            readonly
+        >
+
+        <div class="pinPad">
+
+            <button class="pinKey">1</button>
+            <button class="pinKey">2</button>
+            <button class="pinKey">3</button>
+
+            <button class="pinKey">4</button>
+            <button class="pinKey">5</button>
+            <button class="pinKey">6</button>
+
+            <button class="pinKey">7</button>
+            <button class="pinKey">8</button>
+            <button class="pinKey">9</button>
+
+            <button id="pinClear">CLR</button>
+            <button class="pinKey">0</button>
+            <button id="pinBack">⌫</button>
+
+        </div>
+
+        <div class="buttons">
+
+            <button id="unlockPinBtn">
+                UNLOCK DOOR
+            </button>
+
+            <button id="lockPinBtn">
+                LOCK DOOR
+            </button>
+
+        </div>
+
+        <div class="info">
+
+            <h2 id="pinMessage">
+                SYSTEM READY
+            </h2>
+
+            <p id="pinSubMessage">
+                Enter 6 Digit PIN
+            </p>
+
+        </div>
+
+        <div class="timer">
+
+            <h3>AUTO LOCK</h3>
+
+            <span id="pinCountdown">--</span>
+
+        </div>
+
+        <div class="progress">
+
+            <div id="pinProgressBar"></div>
+
+        </div>
+
+    </div>
+
+</div>
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script src="script.js"></script>
 
