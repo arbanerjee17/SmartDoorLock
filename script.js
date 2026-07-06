@@ -206,38 +206,25 @@ async function getFaceDescriptorFromFrame() {
         return null;
     }
 
-    const frame = captureFrameCanvas();
+    const frame = video;
 
     for (const detectorSetting of DETECTOR_SETTINGS) {
 
         const options = new faceapi.TinyFaceDetectorOptions(detectorSetting);
 
-        const results = await faceapi
-            .detectAllFaces(frame, options)
-            .withFaceLandmarks()
-            .withFaceDescriptors();
-        console.log(results);
-        if (results.length !== 1) {
+        const result = await faceapi
+        .detectSingleFace(frame, options)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
 
-            setMessage("ONLY ONE FACE", "Show one face only");
-
-            continue;
-
+        console.log(result);
+        if (!result) {
+         return null;
         }
 
-        const bestFace = getLargestFace(results);
+     console.log("Face Width:", result.detection.box.width);
 
-        console.log("Face Width:", bestFace.detection.box.width);
-
-    if (bestFace.detection.box.width < 80) {
-
-     setMessage("MOVE CLOSER", "Face too far");
-
-     continue;
-
-    }
-
-        return bestFace.descriptor;
+     return result.descriptor;
 
     }
 
