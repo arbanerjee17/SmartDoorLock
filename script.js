@@ -59,7 +59,7 @@ const ESP32_IP = "192.168.31.77";
 const MODEL_URL = "./models";
 
 // Lower = stricter. Try 0.45 to 0.6 depending on camera quality.
-const MATCH_THRESHOLD = 0.55;
+const MATCH_THRESHOLD = 0.35;
 const AUTO_LOCK_SECONDS = 10;
 const STORAGE_KEY = "smartDoorLock.registeredFaceDescriptor";
 const PHOTO_STORAGE_KEY = "smartDoorLock.registeredFacePhoto";
@@ -225,6 +225,12 @@ async function getFaceDescriptorFromFrame() {
 
             return bestFace.descriptor;
         }
+    }
+    if(results.length !== 1){
+
+    setMessage("ONLY ONE FACE", "Please stand alone");
+    return null;
+
     }
 
     return null;
@@ -410,34 +416,44 @@ registerBtn.addEventListener("click", async () => {
 // ================================
 
 scanBtn.addEventListener("click", async () => {
-    if (!registeredDescriptor && !registeredPhotoFeatures) {
-        setMessage("REGISTER FIRST", "No saved face found");
+
+    if (!registeredDescriptor) {
+        setMessage("REGISTER FACE FIRST", "No face enrolled");
         return;
     }
 
     setButtonsDisabled(true);
-    setMessage("WAITING FOR FACE...", "Hold still");
+    setMessage("VERIFYING...", "Look straight into the camera");
 
     try {
-        const descriptor = registeredDescriptor ? await waitForFaceDescriptor() : null;
-        const faceMatched = descriptor ? isRegisteredFace(descriptor) : false;
-        const photoScore = comparePhotoFeatures(registeredPhotoFeatures, getFrameFeatures());
-        const photoMatched = photoScore >= PHOTO_MATCH_THRESHOLD;
 
-        console.log("Photo match score:", photoScore);
+        const descriptor = await waitForFaceDescriptor();
 
-        if (!faceMatched && !photoMatched) {
+        if (!descriptor) {
             await denyAccess();
             return;
         }
 
-        await unlockDoor();
-    } catch (error) {
-        console.error(error);
+        const matched = isRegisteredFace(descriptor);
+
+        if (!matched) {
+            await denyAccess();
+            return;
+        }
+
+        await verifyLiveFace();
+
+    } catch (err) {
+
+        console.error(err);
         setMessage("SCAN FAILED", "Try again");
+
     } finally {
+
         setButtonsDisabled(false);
+
     }
+
 });
 
 // ================================
@@ -539,6 +555,47 @@ async function sendEsp32Command(command) {
     }
 }
 
+async function verifyLiveFace() {
+
+    setMessage("LIVENESS CHECK", "Turn your head LEFT");
+
+    const first = await waitForFaceDescriptor(5000);
+
+    if (!first) {
+
+        await denyAccess();
+        return;
+
+    }
+
+    await new Promise(r => setTimeout(r, 1500));
+
+    setMessage("LIVENESS CHECK", "Turn your head RIGHT");
+
+    const second = await waitForFaceDescriptor(5000);
+
+    if (!second) {
+
+        await denyAccess();
+        return;
+
+    }
+
+    const movement = faceapi.euclideanDistance(first, second);
+
+    console.log("Head Movement:", movement);
+
+    if (movement < 0.08) {
+
+        setMessage("ACCESS DENIED", "No live movement detected");
+        await denyAccess();
+        return;
+
+    }
+
+    await unlockDoor();
+
+}
 // ================================
 // ACCESS CONTROL
 // ================================
