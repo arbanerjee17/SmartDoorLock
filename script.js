@@ -59,13 +59,13 @@ const ESP32_IP = "192.168.31.77";
 const MODEL_URL = "./models";
 
 // Lower = stricter. Try 0.45 to 0.6 depending on camera quality.
-const MATCH_THRESHOLD = 0.35;
+const MATCH_THRESHOLD = 0.32;
 const AUTO_LOCK_SECONDS = 10;
 const STORAGE_KEY = "smartDoorLock.registeredFaceDescriptor";
 const PHOTO_STORAGE_KEY = "smartDoorLock.registeredFacePhoto";
 const PHOTO_FEATURE_STORAGE_KEY = "smartDoorLock.registeredPhotoFeatures";
 const FACE_SEARCH_TIMEOUT_MS = 10000;
-const PHOTO_MATCH_THRESHOLD = 0.62;
+//const PHOTO_MATCH_THRESHOLD = 0.62;
 const DETECTOR_SETTINGS = [
     { inputSize: 608, scoreThreshold: 0.1 },
     { inputSize: 416, scoreThreshold: 0.12 },
@@ -201,6 +201,7 @@ function getLargestFace(results) {
 }
 
 async function getFaceDescriptorFromFrame() {
+
     if (!modelsReady || video.readyState < 2) {
         return null;
     }
@@ -208,34 +209,39 @@ async function getFaceDescriptorFromFrame() {
     const frame = captureFrameCanvas();
 
     for (const detectorSetting of DETECTOR_SETTINGS) {
+
         const options = new faceapi.TinyFaceDetectorOptions(detectorSetting);
+
         const results = await faceapi
             .detectAllFaces(frame, options)
             .withFaceLandmarks()
             .withFaceDescriptors();
 
+        if (results.length !== 1) {
+
+            setMessage("ONLY ONE FACE", "Show one face only");
+
+            continue;
+
+        }
+
         const bestFace = getLargestFace(results);
 
-        if (bestFace) {
-            console.log("Face found:", {
-                score: bestFace.detection.score,
-                box: bestFace.detection.box,
-                detectorSetting
-            });
+        if (bestFace.detection.box.width < 180) {
 
-            return bestFace.descriptor;
+            setMessage("MOVE CLOSER", "Face too far");
+
+            continue;
+
         }
-    }
-    if(results.length !== 1){
 
-    setMessage("ONLY ONE FACE", "Please stand alone");
-    return null;
+        return bestFace.descriptor;
 
     }
 
     return null;
+
 }
-
 function sleep(ms) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
@@ -375,16 +381,26 @@ function loadStoredFace() {
     }
 }
 
-function isRegisteredFace(scanDescriptor) {
-    if (!registeredDescriptor) {
+function isRegisteredFace(scanDescriptor){
+
+    if(!registeredDescriptor){
+
         return false;
+
     }
 
-    const distance = faceapi.euclideanDistance(registeredDescriptor, scanDescriptor);
-    console.log("Face distance:", distance);
-    return distance <= MATCH_THRESHOLD;
-}
+    const distance=faceapi.euclideanDistance(
+        registeredDescriptor,
+        scanDescriptor
+    );
 
+    console.log("======================");
+    console.log("Distance =",distance);
+    console.log("======================");
+
+    return distance<0.32;
+
+}
 // ================================
 // REGISTER FACE
 // ================================
@@ -411,50 +427,9 @@ registerBtn.addEventListener("click", async () => {
     }
 });
 
-// ================================
-// SCAN FACE
-// ================================
 
-scanBtn.addEventListener("click", async () => {
 
-    if (!registeredDescriptor) {
-        setMessage("REGISTER FACE FIRST", "No face enrolled");
-        return;
-    }
 
-    setButtonsDisabled(true);
-    setMessage("VERIFYING...", "Look straight into the camera");
-
-    try {
-
-        const descriptor = await waitForFaceDescriptor();
-
-        if (!descriptor) {
-            await denyAccess();
-            return;
-        }
-
-        const matched = isRegisteredFace(descriptor);
-
-        if (!matched) {
-            await denyAccess();
-            return;
-        }
-
-        await verifyLiveFace();
-
-    } catch (err) {
-
-        console.error(err);
-        setMessage("SCAN FAILED", "Try again");
-
-    } finally {
-
-        setButtonsDisabled(false);
-
-    }
-
-});
 
 // ================================
 // LOCK BUTTON
@@ -497,38 +472,57 @@ registerCardBtn.onclick = async () => {
     }
 
 }
-scanCardBtn.onclick = async () => {
+scanBtn.addEventListener("click", async () => {
 
-    rfidMessage.textContent="WAITING...";
-    rfidSubMessage.textContent="Tap RFID Card";
+    if (!registeredDescriptor) {
+        setMessage("REGISTER FACE FIRST", "No face enrolled");
+        return;
+    }
 
-    try{
+    setButtonsDisabled(true);
+    setMessage("VERIFYING...", "Hold still");
 
-        const res = await fetch(`http://${ESP32_IP}/scanCard`);
-        const txt = await res.text();
+    try {
 
-        console.log(txt);
+        let success = 0;
 
-        if(txt.trim()=="ACCESS_GRANTED"){
+        for (let i = 0; i < 5; i++) {
+
+            const descriptor = await waitForFaceDescriptor(2000);
+
+            if (!descriptor)
+                continue;
+
+            if (isRegisteredFace(descriptor))
+                success++;
+
+            await new Promise(r => setTimeout(r, 200));
+        }
+
+        console.log("Successful matches:", success);
+
+        if (success >= 4) {
 
             await unlockDoor();
 
-        }else{
+        } else {
 
-            rfidMessage.textContent="ACCESS DENIED";
-            rfidSubMessage.textContent="Unknown Card";
+            await denyAccess();
 
         }
 
-    }catch(err){
+    } catch (err) {
 
-        console.log(err);
+        console.error(err);
+        setMessage("SCAN FAILED", "Try again");
 
-        rfidMessage.textContent="ESP32 OFFLINE";
+    } finally {
+
+        setButtonsDisabled(false);
 
     }
 
-}
+});
 lockDoorBtn.onclick=()=>{
 
     lockDoor();
@@ -555,47 +549,7 @@ async function sendEsp32Command(command) {
     }
 }
 
-async function verifyLiveFace() {
 
-    setMessage("LIVENESS CHECK", "Turn your head LEFT");
-
-    const first = await waitForFaceDescriptor(5000);
-
-    if (!first) {
-
-        await denyAccess();
-        return;
-
-    }
-
-    await new Promise(r => setTimeout(r, 1500));
-
-    setMessage("LIVENESS CHECK", "Turn your head RIGHT");
-
-    const second = await waitForFaceDescriptor(5000);
-
-    if (!second) {
-
-        await denyAccess();
-        return;
-
-    }
-
-    const movement = faceapi.euclideanDistance(first, second);
-
-    console.log("Head Movement:", movement);
-
-    if (movement < 0.08) {
-
-        setMessage("ACCESS DENIED", "No live movement detected");
-        await denyAccess();
-        return;
-
-    }
-
-    await unlockDoor();
-
-}
 // ================================
 // ACCESS CONTROL
 // ================================
