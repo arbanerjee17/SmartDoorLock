@@ -45,116 +45,152 @@
 
     </div>
 
-    <div id="faceMode"> 
-      <div class="status">
+    <div id="faceMode">
 
-        <img id="lockIcon" src="">
+    <div class="desktopLayout">
 
-        <h2 id="doorStatus">LOCKED</h2>
+        <!-- LEFT PANEL -->
+        <div class="leftPanel">
 
-      </div>
+            <div class="status">
 
-      <div class="camera">
+                <img id="lockIcon" src="">
 
-        <video id="video" autoplay playsinline muted></video>
+                <h2 id="doorStatus">LOCKED</h2>
 
-        <div class="scanLine"></div>
+            </div>
 
-      </div>
+            <div class="camera">
 
-      <div class="buttons">
+                <video id="video" autoplay playsinline muted></video>
 
-        <button id="registerBtn">REGISTER FACE</button>
+                <div class="scanLine"></div>
 
-        <button id="scanBtn">SCAN FACE</button>
+            </div>
 
-        <button id="lockBtn">LOCK DOOR</button>
+        </div>
 
-      </div>
+        <!-- RIGHT PANEL -->
+        <div class="rightPanel">
 
-      <div class="info">
+            <div class="buttons">
 
-        <h2 id="message">SYSTEM READY</h2>
+                <button id="registerBtn">REGISTER FACE</button>
 
-        <p id="subMessage">Door Locked</p>
+                <button id="scanBtn">SCAN FACE</button>
 
-      </div>
+                <button id="lockBtn">LOCK DOOR</button>
 
-      <div class="timer">
+            </div>
 
-        <h3>AUTO LOCK</h3>
+            <div class="info">
 
-        <span id="countdown">--</span>
+                <h2 id="message">SYSTEM READY</h2>
 
-      </div>
+                <p id="subMessage">Door Locked</p>
 
-      <div class="progress">
+            </div>
 
-        <div id="progressBar"></div>
+            <div class="timer">
 
-      </div>
+                <h3>AUTO LOCK</h3>
+
+                <span id="countdown">--</span>
+
+            </div>
+
+            <div class="progress">
+
+                <div id="progressBar"></div>
+
+            </div>
+
+        </div>
+
     </div>
+
+</div>
 
     <div id="rfidMode" style="display:none;">
 
-      
+    <div class="desktopLayout">
 
-      <div class="rfidCard">
+        <!-- LEFT PANEL -->
+        <div class="leftPanel">
 
-        <img src="icons/rfid-card.jpg" alt="RFID Card" class="cardImage">
+            <div class="status">
 
-        <div class="pulseCircle"></div>
+                
 
-      </div>
+                <h2 id="rfidDoorStatus">LOCKED</h2>
 
-      <div class="buttons">
+            </div>
 
-        <button id="registerCardBtn">
-            REGISTER CARD
-        </button>
+            <div class="rfidCard">
 
-        <button id="scanCardBtn">
-            SCAN CARD
-        </button>
+                <img src="icons/rfid-card.jpg"
+                     alt="RFID Card"
+                     class="cardImage">
 
-        <button id="lockDoorBtn">
-            LOCK DOOR
-        </button>
+                <div class="pulseCircle"></div>
 
-      </div>
+            </div>
 
-      <div class="info">
+        </div>
 
-        <h2 id="rfidMessage">
-            SYSTEM READY
-        </h2>
+        <!-- RIGHT PANEL -->
+        <div class="rightPanel">
 
-        <p id="rfidSubMessage">
-            Tap your RFID Card
-        </p>
+            <div class="buttons">
 
-      </div>
+                <button id="registerCardBtn">
+                    REGISTER CARD
+                </button>
 
-      <div class="timer">
+                <button id="scanCardBtn">
+                    SCAN CARD
+                </button>
 
-        <h3>AUTO LOCK</h3>
+                <button id="lockDoorBtn">
+                    LOCK DOOR
+                </button>
 
-        <span id="rfidCountdown">--</span>
+            </div>
 
-      </div>
+            <div class="info">
 
-      <div class="progress">
+                <h2 id="rfidMessage">
+                    SYSTEM READY
+                </h2>
 
-        <div id="rfidProgressBar"></div>
+                <p id="rfidSubMessage">
+                    Tap your RFID Card
+                </p>
 
-      </div>
+            </div>
+
+            <div class="timer">
+
+                <h3>AUTO LOCK</h3>
+
+                <span id="rfidCountdown">--</span>
+
+            </div>
+
+            <div class="progress">
+
+                <div id="rfidProgressBar"></div>
+
+            </div>
+
+        </div>
 
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script src="script.js"></script>
 
 </body>
 
 </html>
-
