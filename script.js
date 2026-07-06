@@ -59,7 +59,7 @@ const ESP32_IP = "192.168.31.77";
 const MODEL_URL = "./models";
 
 // Lower = stricter. Try 0.45 to 0.6 depending on camera quality.
-const MATCH_THRESHOLD = 0.32;
+const MATCH_THRESHOLD = 0.45;
 const AUTO_LOCK_SECONDS = 10;
 const STORAGE_KEY = "smartDoorLock.registeredFaceDescriptor";
 const PHOTO_STORAGE_KEY = "smartDoorLock.registeredFacePhoto";
@@ -155,7 +155,7 @@ async function loadModels() {
         faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
     ]);
 
-    modelsReady = true;
+    console.log("MODELS LOADED");
     loadStoredFace();
 
     if (hasRegisteredIdentity()) {
@@ -216,7 +216,7 @@ async function getFaceDescriptorFromFrame() {
             .detectAllFaces(frame, options)
             .withFaceLandmarks()
             .withFaceDescriptors();
-
+        console.log(results);
         if (results.length !== 1) {
 
             setMessage("ONLY ONE FACE", "Show one face only");
@@ -227,13 +227,15 @@ async function getFaceDescriptorFromFrame() {
 
         const bestFace = getLargestFace(results);
 
-        if (bestFace.detection.box.width < 180) {
+        console.log("Face Width:", bestFace.detection.box.width);
 
-            setMessage("MOVE CLOSER", "Face too far");
+    if (bestFace.detection.box.width < 80) {
 
-            continue;
+     setMessage("MOVE CLOSER", "Face too far");
 
-        }
+     continue;
+
+    }
 
         return bestFace.descriptor;
 
@@ -263,7 +265,10 @@ async function waitForFaceDescriptor(timeoutMs = FACE_SEARCH_TIMEOUT_MS) {
         const descriptor = await getFaceDescriptorFromFrame();
 
         if (descriptor) {
-            return descriptor;
+
+          console.log("Descriptor Captured");
+
+         return descriptor;
         }
 
         await sleep(250);
@@ -398,7 +403,7 @@ function isRegisteredFace(scanDescriptor){
     console.log("Distance =",distance);
     console.log("======================");
 
-    return distance<0.32;
+    return distance < MATCH_THRESHOLD;
 
 }
 // ================================
@@ -410,20 +415,31 @@ registerBtn.addEventListener("click", async () => {
     setMessage("CAPTURING PHOTO...", "Look at camera");
 
     try {
-        const descriptor = await waitForFaceDescriptor();
 
-        saveRegisteredFace(descriptor);
+     const descriptor = await waitForFaceDescriptor();
 
-        if (descriptor) {
-            setMessage("FACE REGISTERED", "Recognition mode ready");
-        } else {
-            setMessage("PHOTO REGISTERED", "Photo match mode ready");
-        }
-    } catch (error) {
-        console.error(error);
-        setMessage("REGISTER FAILED", "Try again");
-    } finally {
-        setButtonsDisabled(false);
+     if (!descriptor) {
+
+        setMessage("NO FACE DETECTED", "Try Again");
+        return;
+
+     }
+
+     saveRegisteredFace(descriptor);
+
+     setMessage("FACE REGISTERED", "Recognition mode ready");
+
+     }
+     catch (error) {
+
+     console.error(error);
+     setMessage("REGISTER FAILED", "Try again");
+
+     }
+     finally {
+
+     setButtonsDisabled(false);
+
     }
 });
 
@@ -474,9 +490,9 @@ registerCardBtn.onclick = async () => {
 }
 scanBtn.addEventListener("click", async () => {
 
-    if (!registeredDescriptor) {
-        setMessage("REGISTER FACE FIRST", "No face enrolled");
-        return;
+    if (!hasRegisteredIdentity()) {
+    setMessage("REGISTER FACE FIRST", "No face enrolled");
+    return;
     }
 
     setButtonsDisabled(true);
@@ -648,7 +664,7 @@ function showFaceMode(){
     faceModeBtn.classList.add("active");
     rfidModeBtn.classList.remove("active");
 
-    startCamera();
+    
 
 }
 
