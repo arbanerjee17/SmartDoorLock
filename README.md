@@ -1,264 +1,220 @@
-# SmartDoorLock# 🔐 Smart Door Lock AI
+# 🔐 Smart Door Lock System
 
-An AI-powered smart door lock built using an ESP32 and a servo motor, featuring a modern web interface with face recognition authentication. The system allows only registered users to unlock the door through facial verification, providing a secure, contactless, and intelligent access control solution.
-
----
-
-# ✨ Features
-
-- 🤖 AI-powered Face Recognition
-- 📷 Live Camera Feed
-- 👤 Face Registration
-- 🔍 Face Verification
-- 🔓 Servo-based Door Unlock
-- 🔒 Automatic Door Lock after 10 seconds
-- 🌐 Wi-Fi Enabled ESP32 Communication
-- 💻 Responsive Web Dashboard
-- 🎨 Modern Cyber-Themed User Interface
-- 📱 Mobile & Desktop Compatible
-- ⚡ Real-Time Status Updates
-- 📊 Unlock Progress Indicator
-- 🟢 Face Detection Overlay
-- 🔴 Access Denied Notification
-- 🟢 Access Granted Animation
-- 🔄 Lock/Unlock Status Indicator
+A modern AI-powered Smart Door Lock System built using **ESP32-C6**, **Face Recognition**, **RFID Authentication**, and **PIN-based Access Control**. The system provides multiple secure authentication methods through a responsive web interface while communicating wirelessly with the ESP32 over Wi-Fi.
 
 ---
 
-# 🛠 Technologies Used
+## 📌 Features
 
-## Hardware
+### 👤 AI Face Recognition
+- Register a user's face
+- Scan face for authentication
+- Real-time camera preview
+- Automatic door unlock on successful verification
+- Manual lock button
+- Auto-lock timer with countdown and progress bar
+
+---
+
+### 📡 RFID Authentication
+- Register RFID cards (EM18 Reader)
+- Scan registered RFID cards
+- Access Granted / Access Denied notifications
+- Manual lock button
+- Auto-lock countdown
+- Animated RFID interface
+
+---
+
+### 🔢 6-Digit PIN Authentication
+- Secure six-digit PIN unlock
+- On-screen numeric keypad
+- Keyboard support
+- Manual lock button
+- Auto-lock countdown
+- Progress bar
+- Mobile-style keypad sounds
+
+---
+
+### 🌐 Web Dashboard
+- Responsive UI for Desktop, Tablet and Mobile
+- Authentication Mode Selection
+- Face Recognition Mode
+- RFID Mode
+- PIN Unlock Mode
+- Real-time door status
+- Clean futuristic interface
+
+---
+
+## 🛠 Hardware Used
 
 - ESP32-C6
+- EM18 RFID Reader
 - SG90 Servo Motor
+- Red LED
+- Green LED
 - Push Buttons
-- LEDs
 - Breadboard
 - Jumper Wires
-- USB Type-C Cable
+- USB Cable
 
 ---
 
-## Software
+## 💻 Software & Technologies
 
-- Arduino IDE
 - HTML5
 - CSS3
 - JavaScript
-- MediaPipe AI
-- TensorFlow.js (Face Recognition)
-- ESP32 Web Server
-- Wi-Fi
+- ESP32 Arduino Framework
+- WiFi Library
+- WebServer Library
+- ESP32Servo Library
+- BlazeFace AI Model
+- TensorFlow.js
 
 ---
 
-# 📂 Project Structure
+## 📂 Project Structure
 
 ```
 SmartDoorLock/
-
 │
-├── SmartDoorLock.ino
 ├── index.html
 ├── style.css
 ├── script.js
 │
-└── icons/
-    ├── logo.png
-    ├── lock.png
-    └── unlock.png
+├── icons/
+│   ├── lock.png
+│   ├── unlock.png
+│   ├── rfid-card.jpg
+│   ├── ...
+│
+├── sounds/
+│   └── keypad.mp3
+│
+├── models/
+│   ├── tiny_face_detector
+│   ├── face_landmark_68
+│   └── face_recognition
+│
+└── ESP32_Code/
+    └── SmartDoorLock.ino
 ```
 
 ---
 
-# ⚙ Hardware Connections
+## 🚀 How It Works
 
-| ESP32 | Component |
-|--------|-----------|
-| GPIO 3 | Servo Signal |
-| 5V | Servo VCC |
-| GND | Servo GND |
-| GPIO 8 | Lock Button |
-| GPIO 9 | Unlock Button |
-| GPIO 2 | Green LED |
-| GPIO 4 | Red LED |
+### Face Recognition
 
-> **Use a common ground between the ESP32 and all external components.**
+1. Select **Face Recognition Mode**
+2. Register your face
+3. Scan your face
+4. If verified:
+   - Door Unlocks
+   - Green Status
+   - Auto-lock countdown starts
 
 ---
 
-# 🚀 How It Works
+### RFID
 
-1. User opens the Smart Door Lock website.
-2. Camera starts automatically.
-3. User clicks **Register Face** (first time only).
-4. Facial data is securely stored.
-5. User clicks **Scan Face**.
-6. AI verifies the face.
-7. If verified:
-   - Access Granted
-   - Lock icon animates
-   - ESP32 receives unlock request
-   - Servo rotates to unlock
-8. Door remains unlocked for 10 seconds.
-9. Door locks automatically.
+1. Select **RFID Mode**
+2. Register RFID Card
+3. Scan Registered Card
+4. If verified:
+   - Door Unlocks
+   - Countdown starts
+5. Unknown cards are denied.
 
 ---
 
-# 📱 Website Dashboard
+### PIN Unlock
 
-The web application includes:
-
-- Live Camera Preview
-- Face Scanner
-- Register Face Button
-- Scan Face Button
-- Lock Status
-- AI Verification Status
-- Countdown Timer
-- Progress Bar
-- Lock Animation
+1. Select **PIN Mode**
+2. Enter the 6-digit PIN
+3. Press Unlock
+4. Door unlocks
+5. Auto-lock activates after the countdown.
 
 ---
 
-# 🔐 Security Features
+## 🔒 Security Features
 
-- Face-Based Authentication
-- Automatic Door Lock
-- Secure Local Wi-Fi Communication
-- Unauthorized Access Detection
-- Real-Time Status Monitoring
-
----
-
-# 📦 Components Required
-
-- ESP32-C6 Development Board
-- SG90 Servo Motor
-- 2 Push Buttons
-- 2 LEDs
-- 220Ω Resistors
-- Breadboard
-- Jumper Wires
-- USB Type-C Cable
-- 5V Power Supply (Optional)
+- Face Registration
+- RFID Card Registration
+- PIN Authentication
+- Manual Lock
+- Auto Lock
+- Wi-Fi Communication
+- Multiple Authentication Modes
 
 ---
 
-# 📷 Face Recognition Flow
+## 📱 Responsive Design
 
-```
-Camera
+The interface automatically adapts to:
 
-↓
-
-Face Detection
-
-↓
-
-Face Registration
-
-↓
-
-Face Verification
-
-↓
-
-Access Granted
-
-↓
-
-ESP32 Unlock
-
-↓
-
-Servo Opens Door
-
-↓
-
-10 Second Timer
-
-↓
-
-Door Locks Automatically
-```
+- Desktop
+- Laptop
+- Tablet
+- Android
+- iPhone
 
 ---
 
-# 📡 Communication Flow
+## ⚙ ESP32 API Endpoints
 
-```
-Website
-
-↓
-
-HTTP Request
-
-↓
-
-ESP32 Web Server
-
-↓
-
-Servo Motor
-
-↓
-
-Door Unlock
-```
+| Endpoint | Function |
+|-----------|----------|
+| `/unlock` | Unlock Door |
+| `/lock` | Lock Door |
+| `/status` | Door Status |
+| `/registerCard` | Register RFID Card |
+| `/scanCard` | Scan RFID Card |
+| `/clearCard` | Clear Registered Card |
 
 ---
 
-# 🌟 Future Enhancements
+## 📷 Preview
 
-- Multi-User Face Registration
-- Visitor Access Mode
-- OTP Verification
+- AI Face Recognition
+- RFID Authentication
+- PIN Unlock
+- Responsive Dashboard
+- Servo-based Door Lock
+- Auto Lock Countdown
+
+*(Add screenshots here if available.)*
+
+---
+
+## 🔮 Future Enhancements
+
+- Cloud Database Integration
+- Face Anti-Spoofing
+- Multiple User Profiles
 - Mobile Application
-- QR Code Unlock
-- Fingerprint Authentication
+- OTP Authentication
 - Voice Unlock
-- OLED Display
+- Fingerprint Authentication
 - Event Logs
-- Cloud Database
-- Remote Monitoring
-- Email Alerts
-- Intruder Detection
-- Camera Snapshot Storage
-- Battery Backup
-- Smart Home Integration
-- RFID Support
-- MQTT Communication
-- Firebase Integration
-- Admin Dashboard
-- Unlock History Analytics
+- Push Notifications
+- AES Encrypted Communication
 
 ---
 
-# 🎯 Applications
+## 👨‍💻 Author
 
-- Smart Homes
-- Office Security
-- Hostel Rooms
-- Laboratories
-- Hotel Rooms
-- Server Rooms
-- Smart Cabinets
-- Residential Buildings
-- Co-working Spaces
+**Aparup Banerjee**  
+Associate, IIMCIP-TIC
 
 ---
 
-# 📖 Future Startup Vision
+## 📄 License
 
-The project aims to evolve into a complete Smart Access Management Platform featuring AI-powered authentication, cloud connectivity, remote monitoring, visitor management, mobile applications, and enterprise-grade security for homes, offices, and commercial buildings.
+This project is intended for educational, research and prototype purposes.
 
----
-
-# 👨‍💻 Author
-
-APARUP BANERJEE 
-
-ASSOCIATE ENGINEER , IIMCIP-TIC
-
-AI • IoT • Embedded Systems • Web Development
+© 2026 Aparup Banerjee. All Rights Reserved.
