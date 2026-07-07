@@ -169,10 +169,12 @@ scanBtn.addEventListener("click", async () => {
 
     if (!faceDetected) {
 
-        message.innerHTML = "NO FACE FOUND";
-        subMessage.innerHTML = "Look at Camera";
+     message.innerHTML="🚨 INTRUDER DETECTED";
+     subMessage.innerHTML="Unknown Face";
 
-        return;
+     await logIntruder("Face Recognition","Unknown Person");
+
+     return;
     }
 
     await unlockDoor();
@@ -355,6 +357,51 @@ function addHistory(method,user,location){
 
 }
 
+async function logIntruder(method,user){
+
+    let location="Location Not Available";
+
+    try{
+
+        const position=await new Promise((resolve,reject)=>{
+
+            navigator.geolocation.getCurrentPosition(resolve,reject);
+
+        });
+
+        location=`${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
+
+    }catch(e){}
+
+    if(historyList.innerHTML.includes("No Records Yet")){
+
+        historyList.innerHTML="";
+
+    }
+
+    const now=new Date();
+
+    historyList.insertAdjacentHTML("afterbegin",`
+
+        <div class="historyCard">
+
+            <h3 style="color:#ff3b30;">🚨 access denied</h3>
+
+            <p><strong>Method:</strong> ${method}</p>
+
+            <p><strong>User:</strong> ${user}</p>
+
+            <p><strong>Time:</strong> ${now.toLocaleTimeString()}</p>
+
+            <p><strong>Date:</strong> ${now.toLocaleDateString()}</p>
+
+            <p><strong>Location:</strong> ${location}</p>
+
+        </div>
+
+    `);
+
+}
 init();
 
 faceModeBtn.onclick = () => {
@@ -430,6 +477,7 @@ scanCardBtn.onclick = async () => {
 
             rfidMessage.innerHTML="ACCESS DENIED";
             rfidSubMessage.innerHTML="Invalid Card";
+            await logIntruder("RFID Card","Unknown Card");
 
         }
 
@@ -635,6 +683,7 @@ unlockPinBtn.onclick=async()=>{
 
         pinMessage.innerHTML="WRONG PIN";
         pinSubMessage.innerHTML="Access Denied";
+        await logIntruder("PIN","Wrong PIN");
         pinInput.value="";
         return;
 
