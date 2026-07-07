@@ -169,7 +169,7 @@ scanBtn.addEventListener("click", async () => {
 
     if (!faceDetected) {
 
-     message.innerHTML="🚨 INTRUDER DETECTED";
+     message.innerHTML="🚨 ACCESS DENIED ";
      subMessage.innerHTML="Unknown Face";
 
      await logIntruder("Face Recognition","Unknown Person");
