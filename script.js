@@ -65,6 +65,10 @@ const pinProgressBar=document.getElementById("pinProgressBar");
 const MASTER_PIN="123456";
 const keySound = new Audio("icons/key.mp3");
 keySound.volume = 0.5;
+const historyModeBtn = document.getElementById("historyModeBtn");
+const historyMode = document.getElementById("historyMode");
+const historyList = document.getElementById("historyList");
+const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 
 // CHANGE THIS TO YOUR ESP32 IP
 const ESP32_IP = "192.168.31.77";
@@ -200,6 +204,7 @@ async function unlockDoor() {
 
     message.innerHTML = "ACCESS GRANTED";
     subMessage.innerHTML = "Door Open";
+    await logUnlock("Face Recognition","Registered User");
 
     try {
 
@@ -292,6 +297,63 @@ async function init() {
     detectFace();
 
 }
+async function logUnlock(method,user){
+
+    let location="Location Not Available";
+
+    try{
+
+        const position=await new Promise((resolve,reject)=>{
+
+            navigator.geolocation.getCurrentPosition(resolve,reject);
+
+        });
+
+        const lat=position.coords.latitude.toFixed(5);
+        const lon=position.coords.longitude.toFixed(5);
+
+        location=`${lat}, ${lon}`;
+
+    }catch(e){}
+
+    addHistory(method,user,location);
+
+}
+function addHistory(method,user,location){
+
+    const now = new Date();
+
+    const time = now.toLocaleTimeString();
+
+    const date = now.toLocaleDateString();
+
+    if(historyList.innerHTML.includes("No Records Yet")){
+
+        historyList.innerHTML="";
+
+    }
+
+    historyList.insertAdjacentHTML("afterbegin",`
+
+        <div class="historyCard">
+
+            <h3>🔓 Door Unlocked</h3>
+
+            <p><strong>Method:</strong> ${method}</p>
+
+            <p><strong>User:</strong> ${user}</p>
+
+            <p><strong>Time:</strong> ${time}</p>
+
+            <p><strong>Date:</strong> ${date}</p>
+
+            <p><strong>Location:</strong> ${location}</p>
+
+        </div>
+
+    `);
+
+}
 
 init();
 
@@ -358,6 +420,7 @@ scanCardBtn.onclick = async () => {
         if(result==="ACCESS_GRANTED"){
 
             await unlockRFIDDoor();
+            await logUnlock("RFID Card","Registered User");
 
         }
         else{
@@ -461,6 +524,35 @@ pinMode.style.display="block";
 faceModeBtn.classList.remove("activeMode");
 rfidModeBtn.classList.remove("activeMode");
 pinModeBtn.classList.add("activeMode");
+
+};
+historyModeBtn.onclick = () => {
+
+    faceMode.style.display = "none";
+    rfidMode.style.display = "none";
+    pinMode.style.display = "none";
+    historyMode.style.display = "block";
+
+    faceModeBtn.classList.remove("activeMode");
+    rfidModeBtn.classList.remove("activeMode");
+    pinModeBtn.classList.remove("activeMode");
+    historyModeBtn.classList.add("activeMode");
+
+};
+
+clearHistoryBtn.onclick=()=>{
+
+    historyList.innerHTML=`
+
+        <div class="historyCard">
+
+            <h3>No Records Yet</h3>
+
+            <p>Unlock history will appear here.</p>
+
+        </div>
+
+    `;
 
 };
 
@@ -571,6 +663,7 @@ async function unlockPinDoor(){
 
     pinMessage.innerHTML="ACCESS GRANTED";
     pinSubMessage.innerHTML="Door Open";
+    await logUnlock("PIN","Known User");
 
     try{
 
