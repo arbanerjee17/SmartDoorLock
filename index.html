@@ -44,6 +44,8 @@
        PIN Unlock
      </button>
 
+     <button id="historyModeBtn">ACCESS HISTORY</button>
+
     </div>
 
 <div id="faceMode">
@@ -265,13 +267,44 @@
     </div>
 
 </div>
+
+<div id="historyMode" style="display:none;">
+
+    <div class="historyPanel">
+
+        <h2>📜 ACCESS HISTORY</h2>
+
+        <p>Recent Door Unlock Events</p>
+
+        <div id="historyList">
+
+            <div class="historyCard">
+
+                <h3>No Records Yet</h3>
+
+                <p>Unlock history will appear here.</p>
+
+            </div>
+
+        </div>
+
+        <button id="clearHistoryBtn">
+
+            CLEAR HISTORY
+
+        </button>
+
+    </div>
+
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script src="script.js"></script>
+
 <div class="copyright">
-    
-    
     © 2026 Aparup Banerjee | Associate, IIMCIP-TIC. All Rights Reserved.
 </div>
+
 </body>
 
 </html>
